@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useParams } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { Pencil, Square, Type, StickyNote, Link as LinkIcon, Hand, Lasso, ZoomIn, ZoomOut, Grid3X3 } from 'lucide-react';
-// import CanvasToolbar from './CanvasToolbar';
+import CanvasToolbar from './CanvasToolbar';
 // import GridBackground from './GridBackground';
 // import StickyNoteNode from './NodeTypes/StickyNote';
 // import TextBoxNode from './NodeTypes/TextBox';
