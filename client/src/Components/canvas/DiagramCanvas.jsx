@@ -3,8 +3,9 @@ import { useParams } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import CanvasToolbar from './CanvasToolbar';
 import GridBackground from './GridBackground';
-import socketManager from '../../utils/socketManager';
 import { Sparkles, X } from 'lucide-react';
+import socketManager from '../../utils/socketManager';
+import UserCursors from '../collaboration/UserCursors';
 
 const DiagramCanvas = () => {
   const { id: roomId } = useParams();
@@ -126,6 +127,33 @@ const DiagramCanvas = () => {
       ctxRef.current.lineWidth = strokeWidth;
     }
   }, [color, strokeWidth]);
+
+  // Track cursor position for collaborative editing
+  useEffect(() => {
+    if (!roomId || !user) return;
+    
+    const handleMouseMove = (e) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const position = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+      
+      // In a real implementation, this would emit to the server
+      // socketManager.emit('cursor-update', { 
+      //   position, 
+      //   roomId, 
+      //   userId: user.id,
+      //   name: user.fullName || user.firstName || 'Anonymous'
+      // });
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [roomId, user]);
 
   // Helper functions
   const getPointerPosition = (event) => {
@@ -546,6 +574,8 @@ const DiagramCanvas = () => {
           onTouchMove={draw}
           onTouchEnd={endDrawing}
         />
+        
+        <UserCursors roomId={roomId} />
         
         {/* AI Panel */}
         {showAI && (

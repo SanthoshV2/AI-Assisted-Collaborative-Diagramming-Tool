@@ -1,10 +1,10 @@
-import { useState } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import {
   SignedIn,
   SignedOut,
   SignInButton,
+  useUser,
   UserButton,
 } from "@clerk/clerk-react";
 import Home from "./Components/pages/Home.jsx";
@@ -12,6 +12,12 @@ import Dashboard from "./Components/pages/Dashboard.jsx";
 import DiagramCanvas from "./Components/canvas/DiagramCanvas.jsx";
 
 function App() {
+  const {isLoaded}  = useUser();
+
+  if(!isLoaded) {
+    return <div className="w-screen h-screen flex items-center just ">Loading...</div>
+  }
+
   return (
     <>
       <BrowserRouter>
