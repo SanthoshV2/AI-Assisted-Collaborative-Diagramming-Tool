@@ -1,4 +1,4 @@
-import Reac , {useState , useEffect} from "react";
+import React , {useState , useEffect} from "react";
 import socketManager from "../../utils/socketManager";
 
 function UserCursors({ roomId }) {

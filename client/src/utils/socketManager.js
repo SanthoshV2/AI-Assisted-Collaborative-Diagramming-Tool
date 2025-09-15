@@ -6,6 +6,7 @@ class SocketManager {
     this.connected = false;
     this.currentUser = null;
     this.callbacks = {};
+    this._hasSimulatedCursor = false;
   }
 
   connect() {
@@ -39,7 +40,48 @@ class SocketManager {
   emit(event, data) {
     console.log(`Emitting ${event}:`, data);
     // In a real app, this would send to the server
-    // For now we'll simulate some events locally
+    
+    // Special handling for cursor updates - simulate broadcasting to other users
+    if (event === 'cursor-update') {
+      // Simulate server broadcasting the cursor position back
+      // In a real app, this would go to the server first and then to other clients
+      setTimeout(() => {
+        // Create a simulated user cursor if none exists
+        if (!this._hasSimulatedCursor) {
+          this._hasSimulatedCursor = true;
+          
+          const simulatedPosition = {
+            x: Math.random() * 800,
+            y: Math.random() * 500
+          };
+          
+          // Send simulated cursor update
+          this._trigger('cursor-update', {
+            userId: 'simulated-user',
+            position: simulatedPosition,
+            name: 'Simulated User',
+            color: '#FF5722'
+          });
+          
+          // Move simulated cursor every few seconds
+          setInterval(() => {
+            const newPosition = {
+              x: Math.random() * 800, 
+              y: Math.random() * 500
+            };
+            
+            this._trigger('cursor-update', {
+              userId: 'simulated-user',
+              position: newPosition,
+              name: 'Simulated User',
+              color: '#FF5722'
+            });
+          }, 3000);
+        }
+      }, 500);
+    }
+
+    // For AI requests
     if (event === 'ai-request') {
       setTimeout(() => {
         this._simulateAIResponse(data);

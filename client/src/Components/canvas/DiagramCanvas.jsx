@@ -143,17 +143,18 @@ const DiagramCanvas = () => {
       };
       
       // In a real implementation, this would emit to the server
-      // socketManager.emit('cursor-update', { 
-      //   position, 
-      //   roomId, 
-      //   userId: user.id,
-      //   name: user.fullName || user.firstName || 'Anonymous'
-      // });
+      socketManager.emit('cursor-update', { 
+        position, 
+        roomId, 
+        userId: user.id,
+        name: user.fullName || user.firstName || 'Anonymous',
+        color: color
+      });
     };
     
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [roomId, user]);
+  }, [roomId, user ,color]);
 
   // Helper functions
   const getPointerPosition = (event) => {
