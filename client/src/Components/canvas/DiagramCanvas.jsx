@@ -237,7 +237,7 @@ const DiagramCanvas = () => {
         break;
         
       case 'text':
-        const text = prompt('Enter text:');
+        { const text = prompt('Enter text:');
         if (!text) {
           setDrawing(false);
           return;
@@ -253,10 +253,10 @@ const DiagramCanvas = () => {
         
         addElement(element);
         setDrawing(false);
-        return;
+        return; }
         
       case 'sticky-note':
-        const note = prompt('Enter note text:');
+        { const note = prompt('Enter note text:');
         if (!note) {
           setDrawing(false);
           return;
@@ -274,7 +274,7 @@ const DiagramCanvas = () => {
         
         addElement(element);
         setDrawing(false);
-        return;
+        return; }
         
       default:
         // rectangle, circle, arrow
@@ -306,7 +306,7 @@ const DiagramCanvas = () => {
         break;
         
       case 'rectangle':
-        updatedElement.endX = pos.x;
+        { updatedElement.endX = pos.x;
         updatedElement.endY = pos.y;
         redrawElements();
         
@@ -316,10 +316,10 @@ const DiagramCanvas = () => {
         const width = pos.x - updatedElement.startX;
         const height = pos.y - updatedElement.startY;
         ctx.strokeRect(updatedElement.startX, updatedElement.startY, width, height);
-        break;
+        break; }
         
       case 'circle':
-        updatedElement.endX = pos.x;
+        { updatedElement.endX = pos.x;
         updatedElement.endY = pos.y;
         redrawElements();
         
@@ -334,7 +334,7 @@ const DiagramCanvas = () => {
         ctx.lineWidth = updatedElement.strokeWidth;
         ctx.arc(updatedElement.startX, updatedElement.startY, radius, 0, 2 * Math.PI);
         ctx.stroke();
-        break;
+        break; }
         
       case 'arrow':
         updatedElement.endX = pos.x;
@@ -409,15 +409,15 @@ const DiagramCanvas = () => {
         break;
         
       case 'rectangle':
-        ctx.strokeStyle = element.color;
+        { ctx.strokeStyle = element.color;
         ctx.lineWidth = element.strokeWidth;
         const width = (element.endX || 0) - element.startX;
         const height = (element.endY || 0) - element.startY;
         ctx.strokeRect(element.startX, element.startY, width, height);
-        break;
+        break; }
         
       case 'circle':
-        const radius = Math.sqrt(
+        { const radius = Math.sqrt(
           Math.pow((element.endX || 0) - element.startX, 2) + 
           Math.pow((element.endY || 0) - element.startY, 2)
         );
@@ -427,7 +427,7 @@ const DiagramCanvas = () => {
         ctx.lineWidth = element.strokeWidth;
         ctx.arc(element.startX, element.startY, radius, 0, 2 * Math.PI);
         ctx.stroke();
-        break;
+        break; }
         
       case 'arrow':
         drawArrow(
@@ -449,7 +449,7 @@ const DiagramCanvas = () => {
         
       case 'sticky-note':
         // Draw note background
-        ctx.fillStyle = element.backgroundColor || '#fff3cd';
+        { ctx.fillStyle = element.backgroundColor || '#fff3cd';
         ctx.fillRect(element.x, element.y, element.width || 200, element.height || 150);
         
         // Draw border
@@ -464,11 +464,11 @@ const DiagramCanvas = () => {
         lines.forEach((line, idx) => {
           ctx.fillText(line, element.x + 10, element.y + 25 + idx * 18);
         });
-        break;
+        break; }
         
       case 'ai-text':
         // Draw AI response box
-        ctx.fillStyle = element.backgroundColor || '#e6f7ff';
+        { ctx.fillStyle = element.backgroundColor || '#e6f7ff';
         ctx.fillRect(element.x, element.y, element.width || 300, element.height || 100);
         
         // Draw border
@@ -483,7 +483,7 @@ const DiagramCanvas = () => {
         aiLines.forEach((line, idx) => {
           ctx.fillText(line, element.x + 10, element.y + 25 + idx * 18);
         });
-        break;
+        break; }
     }
     
     ctx.restore();
