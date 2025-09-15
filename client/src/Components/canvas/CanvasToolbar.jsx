@@ -1,137 +1,172 @@
 import React from 'react';
-import { 
-  Pencil, 
-  Square, 
-  Type, 
-  StickyNote, 
-  Link as LinkIcon, 
-  Hand, 
-  Lasso, 
-  ZoomIn, 
-  ZoomOut, 
-  RotateCcw,
-  Share,
-  Download,
-  UserCircle,
-  Save,
-  Grid3X3,
-  Settings,
-  Sparkles
-} from 'lucide-react';
-import { useUser } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, Save, Share, ChevronLeft } from 'lucide-react';
+import { UserButton } from '@clerk/clerk-react';
 
-const ToolButton = ({ icon, active, onClick, tooltip }) => (
-  <div className="relative group">
-    <button
-      onClick={onClick}
-      className={`p-2 rounded-lg ${
-        active ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
-      } transition-colors duration-100`}
-    >
-      {icon}
-    </button>
-    {tooltip && (
-      <div className="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap">
-        {tooltip}
-      </div>
-    )}
-  </div>
-);
-
-const CanvasToolbar = ({
-  currentTool,
-  onToolChange,
-  onZoomIn,
-  onZoomOut,
-  onResetView,
+const CanvasToolbar = ({ 
+  color, 
+  setColor, 
+  strokeWidth, 
+  setStrokeWidth, 
+  onClear, 
+  tool, 
+  setTool, 
+  onAIToggle, 
+  showAI,
   roomId,
-  zoom,
-  collaborators
+  userCount = 1
 }) => {
-  const { user } = useUser();
-
+  const navigate = useNavigate();
+  
   const tools = [
-    { id: 'select', icon: <Lasso size={20} />, tooltip: 'Select (V)' },
-    { id: 'hand', icon: <Hand size={20} />, tooltip: 'Pan (H)' },
-    { id: 'pencil', icon: <Pencil size={20} />, tooltip: 'Draw (P)' },
-    { id: 'shape', icon: <Square size={20} />, tooltip: 'Shape (S)' },
-    { id: 'text', icon: <Type size={20} />, tooltip: 'Text (T)' },
-    { id: 'stickynote', icon: <StickyNote size={20} />, tooltip: 'Sticky Note (N)' },
-    { id: 'connector', icon: <LinkIcon size={20} />, tooltip: 'Connect (C)' },
+    { id: 'select', name: 'Select', icon: '🔘' },
+    { id: 'pencil', name: 'Pencil', icon: '✏️' },
+    { id: 'eraser', name: 'Eraser', icon: '🧽' },
+    { id: 'rectangle', name: 'Rectangle', icon: '⬜' },
+    { id: 'circle', name: 'Circle', icon: '⭕' },
+    { id: 'arrow', name: 'Arrow', icon: '➡️' },
+    { id: 'text', name: 'Text', icon: '📝' },
+    { id: 'sticky-note', name: 'Note', icon: '📄' }
   ];
 
-  const copyInviteLink = () => {
-    const inviteUrl = `${window.location.origin}/diagram/${roomId}`;
-    navigator.clipboard.writeText(inviteUrl);
-    alert('Invitation link copied to clipboard!');
-  };
+  const colors = [
+    { name: 'Black', value: 'black' },
+    { name: 'Red', value: '#ef4444' },
+    { name: 'Blue', value: '#3b82f6' },
+    { name: 'Green', value: '#10b981' },
+    { name: 'Yellow', value: '#f59e0b' },
+    { name: 'Purple', value: '#8b5cf6' }
+  ];
 
   return (
-    <div className="bg-white border-b border-gray-200 p-1.5 flex items-center justify-between">
-      <div className="flex items-center space-x-1">
-        <button className="flex items-center space-x-2 px-3 py-1.5 text-gray-800 hover:bg-gray-100 rounded-lg mr-2">
-          <Sparkles size={18} className="text-blue-500" />
-          <span className="font-medium">DiagramAI</span>
-        </button>
-        
-        <div className="bg-gray-200 h-6 w-px mx-2"></div>
-        
-        {tools.map(tool => (
-          <ToolButton
-            key={tool.id}
-            icon={tool.icon}
-            active={currentTool === tool.id}
-            onClick={() => onToolChange(tool.id)}
-            tooltip={tool.tooltip}
-          />
-        ))}
-        
-        <div className="bg-gray-200 h-6 w-px mx-2"></div>
-        
-        <ToolButton icon={<ZoomIn size={20} />} onClick={onZoomIn} tooltip="Zoom In" />
-        <ToolButton icon={<ZoomOut size={20} />} onClick={onZoomOut} tooltip="Zoom Out" />
-        <ToolButton icon={<RotateCcw size={20} />} onClick={onResetView} tooltip="Reset View" />
-      </div>
-      
-      <div className="flex items-center space-x-3">
-        <button 
-          onClick={() => {/* TODO: Save diagram */}}
-          className="flex items-center space-x-1 px-3 py-1.5 text-gray-700 hover:bg-gray-100 rounded-lg"
-        >
-          <Save size={18} />
-          <span>Save</span>
-        </button>
-        
-        <button 
-          onClick={copyInviteLink}
-          className="flex items-center space-x-1 px-3 py-1.5 text-gray-700 hover:bg-gray-100 rounded-lg"
-        >
-          <Share size={18} />
-          <span>Share</span>
-        </button>
-        
-        <div className="bg-gray-200 h-6 w-px mx-1"></div>
-        
-        <div className="flex items-center">
-          {collaborators.map((collab) => (
-            <div 
-              key={collab.id} 
-              className={`w-8 h-8 rounded-full flex items-center justify-center -ml-2 border-2 border-white ${collab.color} text-white font-medium text-sm`}
-              title={collab.name}
-            >
-              {collab.name.charAt(0)}
+    <div className="bg-white border-b border-gray-200 shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => navigate('/dashboard')} 
+            className="flex items-center space-x-1 text-gray-600 hover:text-gray-900"
+          >
+            <ChevronLeft size={16} />
+            <span>Dashboard</span>
+          </button>
+          
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-3 h-3 text-white" />
             </div>
+            <h1 className="font-medium text-gray-900">
+              Room: <span className="text-blue-600">{roomId}</span>
+            </h1>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 px-2 py-1 bg-green-100 rounded-full">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-xs text-green-700">{userCount} online</span>
+          </div>
+          
+          <button
+            onClick={() => {/* TODO: Save diagram */}}
+            className="flex items-center space-x-1 px-2 py-1 text-gray-700 hover:bg-gray-100 rounded"
+          >
+            <Save size={16} />
+            <span className="text-sm">Save</span>
+          </button>
+          
+          <button
+            onClick={() => {
+              const url = window.location.href;
+              navigator.clipboard.writeText(url);
+              alert('Link copied to clipboard!');
+            }}
+            className="flex items-center space-x-1 px-2 py-1 text-gray-700 hover:bg-gray-100 rounded"
+          >
+            <Share size={16} />
+            <span className="text-sm">Share</span>
+          </button>
+          
+          <UserButton afterSignOutUrl="/" />
+        </div>
+      </div>
+
+      {/* Tools */}
+      <div className="flex items-center justify-between px-4 py-2">
+        <div className="flex items-center gap-1">
+          {tools.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTool(t.id)}
+              className={`px-2 py-1.5 rounded text-sm font-medium transition-all duration-200 flex items-center ${
+                tool === t.id 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              title={t.name}
+            >
+              <span className="mr-1">{t.icon}</span>
+              <span className="hidden sm:inline">{t.name}</span>
+            </button>
           ))}
         </div>
 
-        <div className="bg-gray-200 h-6 w-px mx-1"></div>
-        
-        <button 
-          onClick={() => {/* TODO: Open settings */}}
-          className="p-1.5 text-gray-700 hover:bg-gray-100 rounded-lg"
-        >
-          <Settings size={20} />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Colors */}
+          <div className="flex gap-1 items-center">
+            <span className="text-xs text-gray-500 hidden sm:inline">Color:</span>
+            <div className="flex gap-1">
+              {colors.map((c) => (
+                <button
+                  key={c.value}
+                  className={`w-6 h-6 rounded-full border ${
+                    color === c.value 
+                      ? "border-gray-800 shadow-sm scale-110" 
+                      : "border-gray-300"
+                  }`}
+                  style={{ backgroundColor: c.value }}
+                  onClick={() => setColor(c.value)}
+                  title={c.name}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Size */}
+          <div className="flex items-center gap-1 ml-2">
+            <span className="text-xs text-gray-500 hidden sm:inline">Size:</span>
+            <input
+              type="range"
+              min="1"
+              max="20"
+              value={strokeWidth}
+              onChange={(e) => setStrokeWidth(parseInt(e.target.value))}
+              className="w-20 accent-blue-500"
+            />
+            <span className="text-xs text-gray-600 min-w-[1.5rem]">{strokeWidth}</span>
+          </div>
+
+          {/* AI Toggle */}
+          <button
+            onClick={onAIToggle}
+            className={`flex items-center space-x-1 px-3 py-1.5 rounded text-sm font-medium ml-2 ${
+              showAI 
+                ? 'bg-purple-500 text-white' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>AI</span>
+          </button>
+
+          {/* Clear */}
+          <button
+            className="px-3 py-1.5 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors font-medium ml-2"
+            onClick={onClear}
+          >
+            Clear
+          </button>
+        </div>
       </div>
     </div>
   );

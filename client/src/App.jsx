@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import {
   SignedIn,
   SignedOut,
@@ -12,17 +12,32 @@ import Dashboard from "./Components/pages/Dashboard.jsx";
 import DiagramCanvas from "./Components/canvas/DiagramCanvas.jsx";
 
 function App() {
-
   return (
     <>
-    <BrowserRouter>
-      <div>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/canvas/:id" element={<DiagramCanvas />} />
-        </Routes>
-       </div>
+      <BrowserRouter>
+        
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/dashboard"
+              element={
+                <SignedIn>
+                  <Dashboard />
+                </SignedIn>
+              }
+            />
+            <Route
+              path="/canvas/:id"
+              element={
+                <SignedIn>
+                  <DiagramCanvas />
+                </SignedIn>
+              }
+            />
+          </Routes>
+
+          <Route path="/canvas" element={<Navigate to="/dashboard" />} />
+          <Route path="*" element={<Navigate to="/" />} />
       </BrowserRouter>
     </>
   );
