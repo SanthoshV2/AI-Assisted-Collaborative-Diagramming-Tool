@@ -49,7 +49,10 @@ class SocketManager {
 
   _simulateAIResponse(request) {
     const { prompt, roomId } = request;
-    console.log(`Simulating AI response for: "${prompt}"`);
+
+    const room = roomId || (request.options && request.options.rommId) || "unknow-room";
+
+    console.log(`Simulating AI response for: "${prompt}" in room: ${room}`);
     
     // Generate a mock element based on the prompt
     const element = {
