@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , Link } from 'react-router-dom';
 import { Sparkles, Save, Share, ChevronLeft } from 'lucide-react';
 import { UserButton } from '@clerk/clerk-react';
 
@@ -51,14 +51,15 @@ const CanvasToolbar = ({
             <span>Dashboard</span>
           </button>
           
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <Sparkles className="w-3 h-3 text-white" />
             </div>
             <h1 className="font-medium text-gray-900">
+              DiagramAI
               Room: <span className="text-blue-600">{roomId}</span>
             </h1>
-          </div>
+          </Link>
         </div>
 
         <div className="flex items-center space-x-3">

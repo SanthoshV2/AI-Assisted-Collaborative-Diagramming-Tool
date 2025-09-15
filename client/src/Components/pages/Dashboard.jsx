@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link } from "react-router-dom";
 import { useUser, UserButton } from '@clerk/clerk-react';
 import { Sparkles, Plus } from 'lucide-react';
 
@@ -44,7 +44,7 @@ const Dashboard = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <Link to="/"className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
@@ -52,7 +52,7 @@ const Dashboard = () => {
               <h1 className="text-xl font-bold text-gray-900">DiagramAI</h1>
               <p className="text-sm text-gray-600">Welcome back, {user?.firstName}!</p>
             </div>
-          </div>
+          </Link >
           <UserButton afterSignOutUrl="/" />
         </div>
       </header>
