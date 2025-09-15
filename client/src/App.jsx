@@ -12,38 +12,41 @@ import Dashboard from "./Components/pages/Dashboard.jsx";
 import DiagramCanvas from "./Components/canvas/DiagramCanvas.jsx";
 
 function App() {
-  const {isLoaded}  = useUser();
+  const { isLoaded } = useUser();
 
-  if(!isLoaded) {
-    return <div className="w-screen h-screen flex items-center just ">Loading...</div>
+  if (!isLoaded) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center ">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <>
       <BrowserRouter>
-        
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/dashboard"
-              element={
-                <SignedIn>
-                  <Dashboard />
-                </SignedIn>
-              }
-            />
-            <Route
-              path="/canvas/:id"
-              element={
-                <SignedIn>
-                  <DiagramCanvas />
-                </SignedIn>
-              }
-            />
-          </Routes>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/dashboard"
+            element={
+              <SignedIn>
+                <Dashboard />
+              </SignedIn>
+            }
+          />
+          <Route
+            path="/canvas/:id"
+            element={
+              <SignedIn>
+                <DiagramCanvas />
+              </SignedIn>
+            }
+          />
 
           <Route path="/canvas" element={<Navigate to="/dashboard" />} />
           <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </BrowserRouter>
     </>
   );
