@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , Link} from 'react-router-dom';
 import { SignInButton, SignUpButton, useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import { 
@@ -50,14 +50,14 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Navigation */}
       <nav className="flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
-        <div className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             DiagramAI
           </span>
-        </div>
+        </Link>
         
         <div className="flex items-center space-x-4">
           {!isSignedIn ? (
@@ -215,7 +215,7 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="px-6 py-8 bg-gray-900 text-gray-400 text-center">
-        <p>&copy; 2024 DiagramAI. All rights reserved.</p>
+        <p>&copy; 2025 DiagramAI. All rights reserved.</p>
       </footer>
     </div>
   );
