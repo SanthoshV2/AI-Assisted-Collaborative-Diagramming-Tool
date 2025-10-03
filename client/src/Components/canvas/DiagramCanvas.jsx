@@ -54,71 +54,69 @@ const DiagramCanvas = () => {
 
   // Connect to socket
   useEffect(() => {
-    if (!user || !roomId) return;
-    
-    socketManager.connect();
-    
-    if (!hasJoinedRef.current) {
-      const userInfo = {
-        id: user.id,
-        name: user.fullName || user.firstName || 'Anonymous',
-        email: user.primaryEmailAddress?.emailAddress,
-        imageUrl: user.imageUrl
-      };
-      
-      socketManager.joinRoom(roomId, userInfo);
-      hasJoinedRef.current = true;
-    }
-    
-    // Socket event listeners
-    socketManager.on('room-users', ({ users }) => {
-      setUserCount(users.length);
-    });
-    
-    socketManager.on('user-joined', () => {
-      setUserCount(prev => prev + 1);
-    });
-    
-    socketManager.on('user-left', () => {
-      setUserCount(prev => Math.max(1, prev - 1));
-    });
-    
-    socketManager.on('element-added', ({ element }) => {
-      if (element.userId === socketManager.currentUser) return;
-      addElement(element, false);
-    });
-    
-    socketManager.on('element-updated', ({ elementId, updates }) => {
-      if (updates.userId === socketManager.currentUser) return;
-      updateElement(elementId, updates, false);
-    });
-    
-    socketManager.on('canvas-cleared', ({ userId }) => {
-      if (userId === socketManager.currentUser) return;
-      setElements([]);
-    });
-    
-    socketManager.on('clear-canvas', () => {
-      setElements([]);
-    });
-    
-    socketManager.on('ai-element', ({ element }) => {
-      addElement(element, false);
-      setAIProcessing(false);
-    });
-    
-    return () => {
-      socketManager.off('room-users');
-      socketManager.off('user-joined');
-      socketManager.off('user-left');
-      socketManager.off('element-added');
-      socketManager.off('element-updated');
-      socketManager.off('canvas-cleared');
-      socketManager.off('clear-canvas');
-      socketManager.off('ai-element');
-      socketManager.leaveRoom();
+  if (!user || !roomId) return;
+
+  // ✅ Connect only once per mount
+  if (!hasJoinedRef.current) {
+    socketManager.connect(roomId, user.id);
+
+    const userInfo = {
+      id: user.id,
+      name: user.fullName || user.firstName || "Anonymous",
+      email: user.primaryEmailAddress?.emailAddress,
+      imageUrl: user.imageUrl,
     };
-  }, [roomId, user]);
+
+    socketManager.joinRoom(roomId, userInfo);
+    hasJoinedRef.current = true;
+  }
+
+  // ✅ Socket event listeners
+  const handleRoomUsers = ({ users }) => setUserCount(users.length);
+  const handleUserJoined = () => setUserCount((prev) => prev + 1);
+  const handleUserLeft = () => setUserCount((prev) => Math.max(1, prev - 1));
+  const handleElementAdded = ({ element }) => {
+    if (element.userId === socketManager.currentUser) return;
+    addElement(element, false);
+  };
+  const handleElementUpdated = ({ elementId, updates }) => {
+    if (updates.userId === socketManager.currentUser) return;
+    updateElement(elementId, updates, false);
+  };
+  const handleCanvasCleared = ({ userId }) => {
+    if (userId === socketManager.currentUser) return;
+    setElements([]);
+  };
+  const handleClearCanvas = () => setElements([]);
+  const handleAIElement = ({ element }) => {
+    addElement(element, false);
+    setAIProcessing(false);
+  };
+
+  socketManager.on("room-users", handleRoomUsers);
+  socketManager.on("user-joined", handleUserJoined);
+  socketManager.on("user-left", handleUserLeft);
+  socketManager.on("element-added", handleElementAdded);
+  socketManager.on("element-updated", handleElementUpdated);
+  socketManager.on("canvas-cleared", handleCanvasCleared);
+  socketManager.on("clear-canvas", handleClearCanvas);
+  socketManager.on("ai-element", handleAIElement);
+
+  // ✅ Cleanup
+  return () => {
+    socketManager.off("room-users", handleRoomUsers);
+    socketManager.off("user-joined", handleUserJoined);
+    socketManager.off("user-left", handleUserLeft);
+    socketManager.off("element-added", handleElementAdded);
+    socketManager.off("element-updated", handleElementUpdated);
+    socketManager.off("canvas-cleared", handleCanvasCleared);
+    socketManager.off("clear-canvas", handleClearCanvas);
+    socketManager.off("ai-element", handleAIElement);
+    socketManager.leaveRoom();
+    socketManager.disconnect();
+    hasJoinedRef.current = false;
+  };
+}, [roomId, user]);
 
   // Update canvas when color or stroke width changes
   useEffect(() => {
