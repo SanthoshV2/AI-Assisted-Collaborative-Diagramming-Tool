@@ -33,3 +33,4 @@ class ConnectionManager:
             except Exception:
                 # if a send fails, remove socket
                 await self.disconnect(room_id, ws)
+
