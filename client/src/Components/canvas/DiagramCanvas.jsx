@@ -53,10 +53,10 @@ const DiagramCanvas = () => {
   }, []);
 
   // Connect to socket
-  useEffect(() => {
+useEffect(() => {
   if (!user || !roomId) return;
 
-  // ✅ Connect only once per mount
+  // Connect only once per mount
   if (!hasJoinedRef.current) {
     socketManager.connect(roomId, user.id);
 
@@ -71,10 +71,10 @@ const DiagramCanvas = () => {
     hasJoinedRef.current = true;
   }
 
-  // ✅ Socket event listeners
+  // --- Socket event listeners ---
   const handleRoomUsers = ({ users }) => setUserCount(users.length);
-  const handleUserJoined = () => setUserCount((prev) => prev + 1);
-  const handleUserLeft = () => setUserCount((prev) => Math.max(1, prev - 1));
+  const handleUserJoined = () => setUserCount(prev => prev + 1);
+  const handleUserLeft = () => setUserCount(prev => Math.max(1, prev - 1));
   const handleElementAdded = ({ element }) => {
     if (element.userId === socketManager.currentUser) return;
     addElement(element, false);
@@ -87,22 +87,21 @@ const DiagramCanvas = () => {
     if (userId === socketManager.currentUser) return;
     setElements([]);
   };
-  const handleClearCanvas = () => setElements([]);
   const handleAIElement = ({ element }) => {
     addElement(element, false);
     setAIProcessing(false);
   };
 
+  // Register listeners
   socketManager.on("room-users", handleRoomUsers);
   socketManager.on("user-joined", handleUserJoined);
   socketManager.on("user-left", handleUserLeft);
   socketManager.on("element-added", handleElementAdded);
   socketManager.on("element-updated", handleElementUpdated);
   socketManager.on("canvas-cleared", handleCanvasCleared);
-  socketManager.on("clear-canvas", handleClearCanvas);
   socketManager.on("ai-element", handleAIElement);
 
-  // ✅ Cleanup
+  // --- Cleanup on unmount ---
   return () => {
     socketManager.off("room-users", handleRoomUsers);
     socketManager.off("user-joined", handleUserJoined);
@@ -110,8 +109,8 @@ const DiagramCanvas = () => {
     socketManager.off("element-added", handleElementAdded);
     socketManager.off("element-updated", handleElementUpdated);
     socketManager.off("canvas-cleared", handleCanvasCleared);
-    socketManager.off("clear-canvas", handleClearCanvas);
     socketManager.off("ai-element", handleAIElement);
+
     socketManager.leaveRoom();
     socketManager.disconnect();
     hasJoinedRef.current = false;
@@ -169,17 +168,19 @@ const DiagramCanvas = () => {
     };
   };
 
-  const addElement = (element, emit = true) => {
-    setElements(prev => [...prev, element]);
-    
-    if (emit) {
-      socketManager.addElement({
-        ...element,
-        roomId,
-        userId: socketManager.currentUser
-      });
-    }
-  };
+ const addElement = (element, emit = true) => {
+  // Attach currentUser to the element before storing it in state
+  const elementWithUser = { ...element, userId: socketManager.currentUser };
+
+  setElements(prev => [...prev, elementWithUser]);
+
+  if (emit) {
+    socketManager.addElement({
+      ...elementWithUser,
+      roomId
+    });
+  }
+};
 
   const updateElement = (id, updates, emit = true) => {
     setElements(prev => 
@@ -522,21 +523,84 @@ const DiagramCanvas = () => {
     ctx.restore();
   };
 
-  // AI handling
-  const handleAIRequest = () => {
-    if (!aiPrompt.trim() || aiProcessing) return;
-    
-    setAIProcessing(true);
-    
-    socketManager.requestAISuggestion(aiPrompt, {
-      currentElements: elements,
-      roomId,
-      userId: socketManager.currentUser
-    });
-    
-    // Reset prompt but keep panel open
-    setAIPrompt('');
+const handleAIRequest = () => {
+  console.log("🟢 AI button clicked");
+
+  if (aiProcessing) {
+    console.log("⚠️ AI request is already processing...");
+    return;
+  }
+
+  const userInfo = {
+    id: socketManager.currentUser,
+    name: user?.fullName || user?.firstName || "Anonymous"
   };
+  console.log("👤 Current user info:", userInfo);
+
+  const userElements = [
+    ...elements.filter(el => el.userId === socketManager.currentUser),
+    ...(currentElement ? [{ ...currentElement, userId: socketManager.currentUser }] : [])
+  ].map(el => ({
+    id: el.id,
+    type: el.type,
+    color: el.color,
+    strokeWidth: el.strokeWidth,
+    text: el.text || null,
+    points: el.points || null,
+    startX: el.startX || null,
+    startY: el.startY || null,
+    endX: el.endX || null,
+    endY: el.endY || null,
+    width: el.width || null,
+    height: el.height || null,
+    backgroundColor: el.backgroundColor || null
+  }));
+
+  console.log("🖌 Elements being sent to AI:", userElements);
+
+  const payload = {
+    type: "ai-request",
+    user: userInfo,
+    elements: userElements,
+    roomId
+  };
+  console.log("📤 Sending payload to backend:", payload);
+
+  setAIProcessing(true);
+  setAIPrompt('');
+
+  socketManager.emit("ai-request", payload);
+  console.log("🚀 AI request emitted via WebSocket");
+};
+
+// --- Listen for AI response from backend ---
+useEffect(() => {
+  const handleAIElement = ({ element }) => {
+    console.log("✅ AI element received:", element);
+    addElement(element, false);
+    setAIProcessing(false);
+  };
+
+const handleAISuggestions = ({ suggestions }) => {
+  console.log("✅ AI suggestions received:", suggestions);
+
+  suggestions.forEach(suggestion => {
+    addElement(suggestion, false);
+  });
+
+  setAIProcessing(false);
+};
+
+
+  socketManager.on("ai-element", handleAIElement);
+  socketManager.on("ai-suggestions", handleAISuggestions);
+
+  return () => {
+    socketManager.off("ai-element", handleAIElement);
+    socketManager.off("ai-suggestions", handleAISuggestions);
+  };
+}, []);
+
 
   // Redraw when elements change
   useEffect(() => {
@@ -577,62 +641,43 @@ const DiagramCanvas = () => {
         <UserCursors roomId={roomId} />
         
         {/* AI Panel */}
-        {showAI && (
-          <div className="absolute bottom-4 right-4 w-80 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-3 text-white flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Sparkles className="w-4 h-4" />
-                <h3 className="font-medium">AI Assistant</h3>
-              </div>
-              <button onClick={() => setShowAI(false)}>
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            
-            <div className="p-3">
-              <p className="text-sm text-gray-600 mb-3">
-                Ask the AI to generate content, suggest layouts, or create diagrams for you.
-              </p>
-              
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={aiPrompt}
-                  onChange={e => setAIPrompt(e.target.value)}
-                  placeholder="E.g., Draw a flowchart for user login"
-                  className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  disabled={aiProcessing}
-                />
-                <button
-                  onClick={handleAIRequest}
-                  disabled={!aiPrompt.trim() || aiProcessing}
-                  className={`px-3 py-2 rounded text-white text-sm font-medium ${
-                    !aiPrompt.trim() || aiProcessing
-                      ? 'bg-gray-400'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-                >
-                  {aiProcessing ? 'Generating...' : 'Ask'}
-                </button>
-              </div>
-              
-              <div className="mt-3">
-                <p className="text-xs text-gray-500">Try these:</p>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {['Draw a flowchart', 'Create a mind map', 'Generate a user story'].map(suggestion => (
-                    <button
-                      key={suggestion}
-                      onClick={() => setAIPrompt(suggestion)}
-                      className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded text-gray-700"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      {showAI && (
+  <div className="absolute bottom-4 right-4 w-80 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+    <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-3 text-white flex items-center justify-between">
+      <div className="flex items-center space-x-2">
+        <Sparkles className="w-4 h-4" />
+        <h3 className="font-medium">AI Assistant</h3>
+      </div>
+      <button onClick={() => setShowAI(false)}>
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+
+    <div className="p-3">
+      {!aiPrompt ? (
+        <>
+          <p className="text-sm text-gray-600 mb-3">
+            Click <b>Ask</b> to send your drawing details to the AI.
+          </p>
+          <button
+            onClick={handleAIRequest}
+            disabled={aiProcessing}
+            className={`w-full px-3 py-2 rounded text-white text-sm font-medium ${
+              aiProcessing ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {aiProcessing ? "Analyzing..." : "Ask"}
+          </button>
+        </>
+      ) : (
+        <div className="bg-gray-50 border border-gray-200 rounded p-3">
+          <p className="text-sm text-gray-800 whitespace-pre-line">{aiPrompt}</p>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );

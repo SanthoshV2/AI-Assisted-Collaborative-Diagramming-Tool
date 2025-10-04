@@ -1,24 +1,53 @@
-// Simple mock socket manager for the canvas 
-// In a real implementation, this would use Socket.io or another WebSocket library
+// socketManager.js
+// Real WebSocket manager for collaborative drawing (FastAPI backend)
 
 class SocketManager {
   constructor() {
     this.connected = false;
     this.currentUser = null;
     this.callbacks = {};
-    this._hasSimulatedCursor = false;
+    this.socket = null;
   }
 
-  connect() {
-    this.connected = true;
-    console.log('Socket connected (simulated)');
-    return this;
+  connect(roomId, userId) {
+    if (this.socket && this.connected) return;
+
+    this.socket = new WebSocket(`ws://127.0.0.1:8000/ws/${roomId}/${userId}`);
+
+    this.socket.onopen = () => {
+      this.connected = true;
+      this.currentUser = userId;
+      console.log("✅ Connected to WebSocket");
+    };
+
+    this.socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type && this.callbacks[data.type]) {
+          this.callbacks[data.type].forEach((cb) => cb(data));
+        }
+      } catch (err) {
+        console.error("❌ Failed to parse WS message:", event.data, err);
+      }
+    };
+
+    this.socket.onclose = () => {
+      this.connected = false;
+      console.log("❌ WebSocket closed");
+    };
+
+    this.socket.onerror = (err) => {
+      console.error("❌ WebSocket error:", err);
+    };
   }
 
   disconnect() {
     this.connected = false;
     this.callbacks = {};
-    console.log('Socket disconnected (simulated)');
+    if (this.socket) {
+      this.socket.close();
+      this.socket = null;
+    }
   }
 
   on(event, callback) {
@@ -31,135 +60,47 @@ class SocketManager {
   off(event, callback) {
     if (!this.callbacks[event]) return;
     if (callback) {
-      this.callbacks[event] = this.callbacks[event].filter(cb => cb !== callback);
+      this.callbacks[event] = this.callbacks[event].filter((cb) => cb !== callback);
     } else {
       delete this.callbacks[event];
     }
   }
 
   emit(event, data) {
-    console.log(`Emitting ${event}:`, data);
-    // In a real app, this would send to the server
-    
-    // Special handling for cursor updates - simulate broadcasting to other users
-    if (event === 'cursor-update') {
-      // Simulate server broadcasting the cursor position back
-      // In a real app, this would go to the server first and then to other clients
-      setTimeout(() => {
-        // Create a simulated user cursor if none exists
-        if (!this._hasSimulatedCursor) {
-          this._hasSimulatedCursor = true;
-          
-          const simulatedPosition = {
-            x: Math.random() * 800,
-            y: Math.random() * 500
-          };
-          
-          // Send simulated cursor update
-          this._trigger('cursor-update', {
-            userId: 'simulated-user',
-            position: simulatedPosition,
-            name: 'Simulated User',
-            color: '#FF5722'
-          });
-          
-          // Move simulated cursor every few seconds
-          setInterval(() => {
-            const newPosition = {
-              x: Math.random() * 800, 
-              y: Math.random() * 500
-            };
-            
-            this._trigger('cursor-update', {
-              userId: 'simulated-user',
-              position: newPosition,
-              name: 'Simulated User',
-              color: '#FF5722'
-            });
-          }, 3000);
-        }
-      }, 500);
+    if (this.socket && this.connected && this.socket.readyState === WebSocket.OPEN) {
+      const payload = { type: event, ...data };
+      this.socket.send(JSON.stringify(payload));
+    } else {
+      console.error();
     }
-
-    // For AI requests
-    if (event === 'ai-request') {
-      setTimeout(() => {
-        this._simulateAIResponse(data);
-      }, 1500);
-    }
-  }
-
-  _simulateAIResponse(request) {
-    const { prompt, roomId } = request;
-
-    const room = roomId || (request.options && request.options.rommId) || "unknow-room";
-
-    console.log(`Simulating AI response for: "${prompt}" in room: ${room}`);
-    
-    // Generate a mock element based on the prompt
-    const element = {
-      id: Date.now() + Math.random(),
-      type: 'ai-text',
-      text: `AI response for: "${prompt}"`,
-      x: 100,
-      y: 100,
-      width: 300,
-      height: 100,
-      backgroundColor: '#e6f7ff',
-      color: '#0066cc'
-    };
-
-    // Trigger callbacks for ai-element event
-    this._trigger('ai-element', { element });
-  }
-
-  _trigger(event, data) {
-    if (!this.callbacks[event]) return;
-    this.callbacks[event].forEach(callback => callback(data));
   }
 
   joinRoom(roomId, userInfo) {
     this.currentUser = userInfo.id;
-    console.log(`Joining room ${roomId} as user:`, userInfo);
-    
-    // Simulate room joined event
-    setTimeout(() => {
-      this._trigger('room-users', { 
-        users: [userInfo, { id: 'simulated-user', name: 'Simulated User' }] 
-      });
-    }, 300);
+    this.emit("join-room", { roomId, user: userInfo });
   }
 
   leaveRoom() {
+    this.emit("leave-room", { userId: this.currentUser });
     this.currentUser = null;
   }
 
   addElement(element) {
-    console.log('Adding element:', element);
-    // Simulate sending to server and others
-    // In a real implementation this would emit to server
-    
-    // For demo, we'll simulate a local event to show it works
-    if (element.action === 'start' || element.action === 'end') {
-      this._trigger('element-added', { element });
-    }
+    const enrichedElement = { ...element, userId: this.currentUser };
+    this.emit("element-added", { element: enrichedElement });
   }
 
   updateElement(elementId, updates) {
-    console.log('Updating element:', elementId, updates);
-    // Simulate sending to server and others
-    this._trigger('element-updated', { elementId, updates });
+    this.emit("element-updated", { elementId, updates });
   }
 
   clearCanvas() {
-    console.log('Clearing canvas');
-    this._trigger('canvas-cleared', { userId: this.currentUser });
-    this._trigger('clear-canvas', {});
+    this.emit("canvas-cleared", { userId: this.currentUser });
   }
 
+  // === AI Related ===
   requestAISuggestion(prompt, data) {
-    console.log('Requesting AI suggestion:', prompt, data);
-    this.emit('ai-request', { prompt, ...data });
+    this.emit("ai-request", { prompt, ...data });
   }
 }
 

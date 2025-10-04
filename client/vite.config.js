@@ -8,4 +8,7 @@ export default defineConfig({
     tailwindcss(),
     react()
   ],
+  server: {
+    hmr: false  // 🚫 disables Vite's WebSocket (no more ?token=... connections)
+  }
 })
