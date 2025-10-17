@@ -1,6 +1,8 @@
 // socketManager.js
 // Real WebSocket manager for collaborative drawing (FastAPI backend)
 
+const WS_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000/ws";
+
 class SocketManager {
   constructor() {
     this.connected = false;
@@ -12,7 +14,7 @@ class SocketManager {
   connect(roomId, userId) {
     if (this.socket && this.connected) return;
 
-    this.socket = new WebSocket(`ws://127.0.0.1:8000/ws/${roomId}/${userId}`);
+    this.socket = new WebSocket(`${WS_URL}/${roomId}/${userId}`);
 
     this.socket.onopen = () => {
       this.connected = true;
