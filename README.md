@@ -33,4 +33,12 @@ Users can sign in using **Clerk authentication**, create or join shared rooms, a
 ## 🏗️ System Architecture
 
 The system follows a **client-server model**:
+[Frontend: React + Tailwind + Clerk]
+⇅ (REST + WebSocket)
+[Backend: FastAPI + WebSocket Manager]
+⇅
+[Database / Persistent Storage]
+
+📘 *See the architecture diagram:*  
+`/docs/architecture_diagram.png`
 
