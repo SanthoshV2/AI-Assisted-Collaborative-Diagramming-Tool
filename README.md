@@ -68,8 +68,8 @@ npm install
 
 # Start development server
 npm run dev
----
-<h3><b>⚙️ Backend Setup</b></h3>
+
+### ⚙️ Backend Setup
 
 
 
