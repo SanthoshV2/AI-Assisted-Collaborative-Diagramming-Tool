@@ -67,7 +67,7 @@ git clone https://github.com/SanthoshV2/AI-Assisted-Collaborative-Diagramming-To
 ### 2.⚙️ Backend Setup
 ```bash
 #Move to backend
-cd Backend
+cd server
 
 #Create and activate virtual environment
 python -m venv venv
@@ -85,7 +85,7 @@ uvicorn main:app --reload
 ### 3.🧩 Frontend Setup 
 ```bash
 #Move to frontend
-cd Frontend
+cd client
 
 #Install dependencies
 npm install
