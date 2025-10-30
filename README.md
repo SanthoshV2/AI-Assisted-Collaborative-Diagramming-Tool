@@ -56,33 +56,35 @@ The system follows a **client-server model**:
 
 ---
 ### 🧩 Frontend Setup 
-# Clone the repo
+***Clone the repo***
 git clone https://github.com/SanthoshV2/AI-Assisted-Collaborative-Diagramming-Tool.git
 
-# Move to frontend
+***Move to frontend***
 cd Frontend
 
-# Install dependencies
+***Install dependencies***
 npm install
 
-# Start development server
+***Start development server***
 npm run dev
 
 ### ⚙️ Backend Setup
-# Move to backend
+***Move to backend***
 cd Backend
 
-# Create and activate virtual environment
+***Create and activate virtual environment***
 python -m venv venv
 venv\Scripts\activate  # (Windows)
 source venv/bin/activate  # (Mac/Linux)
 
-# Install dependencies
-pip install fastapi uvicorn
+***Install dependencies***
+pip install -r requirements.txt
 
-# Run the server
-uvicorn main:app --reload
+***Run the server***
+uvicorn main:app --reloa
+
 ---
+
 ## 🧠 How It Works
 
 ***User Authentication*** – User logs in via Clerk (frontend).
