@@ -55,7 +55,7 @@ The system follows a **client-server model**:
 | Version Control | Git & GitHub |
 
 ---
-### 🧩 Frontend Setup
+### 🧩 Frontend Setup 
 ```bash
 # Clone the repo
 git clone https://github.com/<your-username>/AI-Assisted-Collaborative-Diagramming-Tool.git
@@ -68,8 +68,8 @@ npm install
 
 # Start development server
 npm run dev
-
 ---
-### **Features**
+<h3><b>⚙️ Backend Setup</b></h3>
+
 
 
