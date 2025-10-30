@@ -33,11 +33,14 @@ Users can sign in using **Clerk authentication**, create or join shared rooms, a
 ## 🏗️ System Architecture
 
 The system follows a **client-server model**:
+```
 [Frontend: React + Tailwind + Clerk]
 ⇅ (REST + WebSocket)
 [Backend: FastAPI + WebSocket Manager]
 ⇅
 [Database / Persistent Storage]
+
+```
 
 📘 *See the architecture diagram:*  
 <img width="1536" height="1024" alt="AD" src="https://github.com/user-attachments/assets/448cc707-37eb-46e1-9cc0-eb8c9b399d09" />
@@ -55,34 +58,41 @@ The system follows a **client-server model**:
 | Version Control | Git & GitHub |
 
 ---
-### 🧩 Frontend Setup 
-***Clone the repo***
+## 🚀 Installation & Setup
+
+### 1.Clone the Repository
+```bash
 git clone https://github.com/SanthoshV2/AI-Assisted-Collaborative-Diagramming-Tool.git
-
-***Move to frontend***
-cd Frontend
-
-***Install dependencies***
-npm install
-
-***Start development server***
-npm run dev
-
-### ⚙️ Backend Setup
-***Move to backend***
+```
+### 2.⚙️ Backend Setup
+```bash
+#Move to backend
 cd Backend
 
-***Create and activate virtual environment***
+#Create and activate virtual environment
 python -m venv venv
 venv\Scripts\activate  # (Windows)
 source venv/bin/activate  # (Mac/Linux)
 
-***Install dependencies***
+#Install dependencies
 pip install -r requirements.txt
 
-***Run the server***
-uvicorn main:app --reloa
+#Run the server
+uvicorn main:app --reload
+```
+---
 
+### 3.🧩 Frontend Setup 
+```bash
+#Move to frontend
+cd Frontend
+
+#Install dependencies
+npm install
+
+#Start development server
+npm run dev
+```
 ---
 
 ## 🧠 How It Works
