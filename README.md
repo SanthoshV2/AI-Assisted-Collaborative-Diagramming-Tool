@@ -40,7 +40,7 @@ The system follows a **client-server model**:
 [Database / Persistent Storage]
 
 📘 *See the architecture diagram:*  
-`/docs/architecture_diagram.png`
+<img width="1536" height="1024" alt="AD" src="https://github.com/user-attachments/assets/448cc707-37eb-46e1-9cc0-eb8c9b399d09" />
 
 ## 🧰 Tech Stack
 
@@ -56,9 +56,8 @@ The system follows a **client-server model**:
 
 ---
 ### 🧩 Frontend Setup 
-```bash
 # Clone the repo
-git clone https://github.com/<your-username>/AI-Assisted-Collaborative-Diagramming-Tool.git
+git clone https://github.com/SanthoshV2/AI-Assisted-Collaborative-Diagramming-Tool.git
 
 # Move to frontend
 cd Frontend
@@ -70,6 +69,53 @@ npm install
 npm run dev
 
 ### ⚙️ Backend Setup
+# Move to backend
+cd Backend
+
+# Create and activate virtual environment
+python -m venv venv
+venv\Scripts\activate  # (Windows)
+source venv/bin/activate  # (Mac/Linux)
+
+# Install dependencies
+pip install fastapi uvicorn
+
+# Run the server
+uvicorn main:app --reload
+---
+## 🧠 How It Works
+
+***User Authentication*** – User logs in via Clerk (frontend).
+
+***Room Creation*** – User creates or joins a room with a unique code.
+
+***WebSocket Connection*** – FastAPI manages real-time data flow.
+
+***Collaborative Drawing*** – All user actions (draw, erase, add notes) are synced instantly.
+
+***AI Assistance*** – Users can prompt the AI to generate diagram ideas.
+
+---
+
+### 🔮 Future Enhancements
+
+💾 Save and restore diagrams from the database
+
+✏️ Multi-layer editing and object grouping
+
+🗺️ Zooming, panning, and export options
+
+🧠 Integration with real AI model (e.g., GPT-based diagram generation)
+
+📈 User analytics and room insights
+
+---
+
+### ⭐ Support
+
+If you like this project, don’t forget to star 🌟 the repository on GitHub!
+
+
 
 
 
