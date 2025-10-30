@@ -42,3 +42,39 @@ The system follows a **client-server model**:
 📘 *See the architecture diagram:*  
 `/docs/architecture_diagram.png`
 
+## 🧰 Tech Stack
+
+| Category | Technology |
+|-----------|-------------|
+| Frontend | React, Vite, TailwindCSS |
+| Backend | FastAPI, Python |
+| Realtime | WebSockets |
+| Authentication | Clerk |
+| AI Layer | OpenAI / Placeholder for future AI model |
+| Storage | Supabase / PostgreSQL |
+| Version Control | Git & GitHub |
+
+---
+### 🧩 Frontend Setup
+```bash
+# Clone the repo
+git clone https://github.com/<your-username>/AI-Assisted-Collaborative-Diagramming-Tool.git
+
+# Move to frontend
+cd Frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+
+### 🧩 Backend Setup
+# Move to backend
+cd Backend
+
+# Create and activate virtual environment
+python -m venv venv
+venv\Scripts\activate  # (Windows)
+source venv/bin/activate  # (Mac/Linux)
