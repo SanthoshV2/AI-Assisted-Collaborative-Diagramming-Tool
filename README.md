@@ -69,12 +69,7 @@ npm install
 # Start development server
 npm run dev
 
+---
+### **Features**
 
-### 🧩 Backend Setup
-# Move to backend
-cd Backend
 
-# Create and activate virtual environment
-python -m venv venv
-venv\Scripts\activate  # (Windows)
-source venv/bin/activate  # (Mac/Linux)
